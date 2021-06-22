@@ -1,0 +1,6 @@
+{
+  "ConnectionStrings": {
+    "ILSConnectionString": "Server=localhost;Database=ILSContext;User=sa;Password=123456;MultipleActiveResultSets=True;"
+  }
+
+}

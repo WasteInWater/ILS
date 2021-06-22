@@ -1,0 +1,124 @@
+﻿@using Wms.Web.Core
+
+<script src="~/js/signalr.min.js"></script>
+<script type="text/javascript">
+    let autJson = JSON.parse(localStorage.getItem("LicenseInfo"));
+    let aut =autJson["access-token"];
+    connection = new signalR.HubConnectionBuilder()
+        .withUrl("/SignalRHub", { accessTokenFactory: () => aut })
+        .configureLogging(signalR.LogLevel.Warning)
+        .build();
+    async function start() {
+        try {
+            await connection.start();
+            console.log("SignalR Connected.");
+        } catch (err) {
+            console.log(err);
+            setTimeout(start, 8000);
+        }
+    };
+    connection.onclose(start);
+    start();
+    try {
+        connection.on("ReceiveMessage", function (user, message) {
+            console.log(message);
+            console.log(user);
+            if (message === "强制退出系统!!!" && user === "系统") { messageProcessing();}
+        });
+    } catch (err) {
+        console.log(err);
+    }
+
+    function messageProcessing() {
+        localStorage.removeItem("LicenseInfo");
+        layer.msg("你已经被强制清退，请重新登录系统！！！", { icon: 2, time: 1000 });
+        location.href = "/Home/Login";
+    }
+
+</script>
+<div class="layui-header">
+    <!-- 顶 部 左 侧 功 能 -->
+    <ul class="layui-nav layui-layout-left">
+        <li class="collaspe layui-nav-item"><a href="javascript:void(0)" class="layui-icon layui-icon-shrink-right"></a></li>
+        <li class="refresh layui-nav-item"><a href="javascript:void(0)" class="layui-icon layui-icon-refresh-1" loading=600></a></li>
+    </ul>
+    <!-- 顶 部 右 侧 菜 单 -->
+    <div id="control" class="layui-layout-control"></div>
+    <ul class="layui-nav layui-layout-right">
+        <li class="layui-nav-item layui-hide-xs"><a href="javascript:void(0)" class="fullScreen layui-icon layui-icon-screen-full"></a></li>
+        <li class="layui-nav-item layui-hide-xs"><a href="http://www.pearadmin.com" class="layui-icon layui-icon-website"></a></li>
+        
+        <li class="layui-nav-item user">
+            <!-- 头 像 -->
+            <a href="javascript:;">
+                <img src="/admin/images/avatar.jpg" class="layui-nav-img">
+                <label id="userName"></label>
+            </a>
+            <!-- 功 能 菜 单 -->
+            <dl class="layui-nav-child">
+                <dd><a user-menu-url="view/system/person.html" user-menu-id="5555" user-menu-title="基本资料">基本资料</a></dd>
+                <dd><a href="javascript:void(0);" class="logout">注销登录</a></dd>
+            </dl>
+        </li>
+        <!-- 主 题 配 置 -->
+        <li class="layui-nav-item setting"><a href="javascript:void(0)" class="layui-icon layui-icon-more-vertical"></a></li>
+    </ul>
+</div>
+<!-- 侧 边 区 域 -->
+<div class="layui-side layui-bg-black">
+    <!-- 菜 单 顶 部 -->
+    <div class="layui-logo">
+        <!-- 图 标 -->
+        <img class="logo" />
+        <!-- 标 题 -->
+        <span class="title"></span>
+    </div>
+    <!-- 菜 单 内 容 -->
+    <div class="layui-side-scroll">
+        <div id="sideMenu"></div>
+    </div>
+</div>
+<!-- 视 图 页 面 -->
+<div class="layui-body">
+    <!-- 内 容 页 面 -->
+    <div id="content"></div>
+</div>
+<!-- 遮 盖 层 -->
+<div class="pear-cover"></div>
+<!-- 加 载 动 画-->
+<div class="loader-main">
+    <div class="loader"></div>
+</div>
+<!-- 移 动 端 便 捷 操 作 -->
+<div class="pear-collasped-pe collaspe">
+    <a href="#" class="layui-icon layui-icon-shrink-right"></a>
+</div>
+
+<!-- 框 架 初 始 化 -->
+<script>
+    layui.use(['admin', 'jquery', 'permission','convert', 'popup', ], function () {
+        var admin = layui.admin;
+		var $ = layui.jquery;
+		var convert = layui.convert;
+        var popup = layui.popup;
+
+        admin.setConfigPath("/Home/Config");
+        admin.render();
+        $(function () {
+            $.get("/getLoginUser", function (res) {
+                if (res.success && res.code === 200) {
+                    $("#userName").html(res.data.name);
+                }
+            });
+        });
+       
+        // 登出逻辑
+        admin.logout(function () {
+            popup.success("注销成功ing........", function () {
+                localStorage.removeItem("LicenseInfo");
+                location.href = "/Home/Login";
+            })
+            return true;
+        });
+    })
+</script>

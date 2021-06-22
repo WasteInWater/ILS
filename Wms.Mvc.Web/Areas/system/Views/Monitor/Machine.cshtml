@@ -1,0 +1,124 @@
+﻿<p>&nbsp;</p>
+<div class="layui-row layui-col-space12">
+    <div class="layui-col-md6">
+        <div class="layui-card" style="min-height:350px;">
+            <div class="layui-card-header" style="font-size:16px">系统信息</div>
+            <div class="layui-card-body" id="machine">
+               
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md6">
+        <div class="layui-card" style="min-height:350px;">
+            <div class="layui-card-header" style="font-size:16px">网络信息</div>
+            <div class="layui-card-body" id="network">
+              
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md12">
+        <div class="layui-card" style="min-height:200px;">
+            <div class="layui-card-header" style="font-size:16px">其他信息</div>
+            <div class="layui-card-body" id="otherMsg">
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<style>
+    .layui-table tbody tr:hover, .layui-table thead tr, .layui-table-click, .layui-table-header, .layui-table-hover, .layui-table-mend, .layui-table-patch, .layui-table-tool, .layui-table[lay-even] tr:nth-child(even) {
+        background-color: transparent;
+    }
+</style>
+<script type="text/html" id="sysmsg">
+    <table class="layui-table" lay-size="lg" lay-skin="nob">
+        <tr style="border-bottom:1px solid lightgray; font-size:15px">
+            <td>[col1]：</td>
+            <td style="text-align:center">[col1Msg]</td>
+        </tr>
+        <tr style="border-bottom:1px solid lightgray; font-size:15px">
+            <td>[col2]：</td>
+            <td style="text-align:center">[col2Msg]</td>
+        </tr>
+        <tr style="border-bottom:1px solid lightgray; font-size:15px">
+            <td>[col3]：</td>
+            <td style="text-align:center">[col3Msg]</td>
+        </tr>
+        <tr style="border-bottom:1px solid lightgray; font-size:15px">
+            <td>[col4]：</td>
+            <td style="text-align:center">[col4Msg]</td>
+        </tr>
+        <tr style="border-bottom:1px solid lightgray; font-size:15px">
+            <td>[col5]：</td>
+            <td style="text-align:center">[col5Msg]</td>
+        </tr>
+    </table>
+</script>
+<script type="text/html" id="sysmsgOther">
+    <table class="layui-table" lay-size="lg" lay-skin="nob">
+        <tr style="border-bottom:1px solid lightgray; font-size:15px">
+            <td>[colA]：</td>
+            <td style="text-align:center">[colAMsg]</td>
+            <td>[colB]：</td>
+            <td style="text-align:center">[colBMsg]%</td>
+        </tr>
+        <tr style="border-bottom:1px solid lightgray; font-size:15px">
+            <td>[colC]：</td>
+            <td style="text-align:center">[colCMsg]</td>
+            <td>[colD]：</td>
+            <td style="text-align:center">[colDMsg]%</td>
+        </tr>
+    </table>
+</script>
+<script>
+    layui.use(['layer', 'jquery', 'permission'], function () {
+        let $ = layui.jquery;
+        var reg = new RegExp("\\[([^\\[\\]]*?)\\]", 'igm');
+        var html = document.getElementById("sysmsg").innerHTML;
+        var html1 = document.getElementById("sysmsgOther").innerHTML;
+        $.get("/sysMachine/base", function (res) {
+            if (res.code == 200) {
+                var source = html.replace(reg, function (node, key) {
+                    return {
+                        'col1': "主机名称", 'col1Msg': res.data.hostName,
+                        'col2': "操作系统", 'col2Msg': res.data.systemOs,
+                        'col3': "系统架构", 'col3Msg': res.data.osArchitecture,
+                        'col4': "运行框架", 'col4Msg': res.data.frameworkDescription,
+                        'col5': "Cpu核数", 'col5Msg': res.data.processorCount,
+                    }[key];
+                });
+                $("#machine").append(source);
+                var source1 = html.replace(reg, function (node, key) {
+                    return {
+                        'col1': "外网信息", 'col1Msg': res.data.wanIp,
+                        'col2': "IPV4地址", 'col2Msg': res.data.lanIp,
+                        'col3': "网卡MAC", 'col3Msg': res.data.ipMac,
+                        'col4': "流量统计", 'col4Msg': res.data.sendAndReceived,
+                        'col5': "网络速度", 'col5Msg': res.data.networkSpeed,
+                    }[key];
+                });
+                $("#network").append(source1);
+
+            }
+        });
+        $.get("/sysMachine/use", function (res) {
+            if (res.code == 200) {
+                let source = html1.replace(reg, function (node, key) {
+                    return {
+                        'colA': "系统运行时间", 'colAMsg': res.data.runTime,
+                        'colB': "服务器CPU使用率", 'colBMsg': res.data.cpuRate,
+                        'colC': "服务器总内存", 'colCMsg': res.data.totalRam,
+                        'colD': "服务器内存使用率", 'colDMsg': res.data.ramRate,
+                    }[key];
+                });
+                $("#otherMsg").append(source);
+               
+            }
+        });
+
+
+
+
+    })
+</script>

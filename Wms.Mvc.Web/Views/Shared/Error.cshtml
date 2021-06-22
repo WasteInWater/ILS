@@ -1,0 +1,17 @@
+﻿@using Wms.Web.Core
+@{
+    ViewData["Title"] = "系统异常Error";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+}
+
+<link href="~/admin/css/other/error.css" rel="stylesheet" />
+<div class="content">
+    <img src="/admin/images/404.svg" alt="">
+    <div class="content-r">
+        <h1>@ViewData["StatusCode"]</h1>
+        <p>抱歉，系统异常，请联系管理员并返回至首页！！!</p>
+        <p>@DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")</p>
+        <p>&nbsp;</p>
+        <a class="pear-btn pear-btn-primary" href="/home/login">返回首页</a>
+    </div>
+</div>

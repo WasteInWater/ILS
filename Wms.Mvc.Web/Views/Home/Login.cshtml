@@ -1,0 +1,107 @@
+﻿@{ Layout = "~/Views/Shared/_LayoutLogin.cshtml"; }
+@{ ViewData["Title"] = "登录系统页面";}
+<meta http-equiv="refresh" content="300; url=index.">
+    <form class="layui-form" action="javascript:void(0);">
+        <div class="layui-form-item">
+            <img class="logo" src="/admin/images/logo.png" />
+            <div class="title">智慧物流系统ILS</div>
+            <div class="desc">
+                用户登录
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <input placeholder="账 户 : admin " lay-verify="account"  name="account" hover class="layui-input" />
+        </div>
+        <div class="layui-form-item">
+            <input placeholder="密 码 : admin " type="password" id="password" lay-verify="password" name="password" hover class="layui-input" />
+        </div>
+        <div class="layui-form-item">
+            <input placeholder="验证码 : " hover lay-verify="captcha" name="captcha" class="code layui-input layui-input-inline" />
+            <img src="@Url.Content("Vcode?"+DateTime.Now.Ticks)"  id="Vcodeimg" class="codeImage" />
+        </div>
+        <div class="layui-form-item">
+            <input type="checkbox" name="" title="记住密码" lay-skin="primary" checked>
+        </div>
+        <div class="layui-form-item">
+            <button type="button" class="pear-btn pear-btn-success login" lay-submit lay-filter="login">
+                登 入
+            </button>
+        </div>
+    </form>
+    <script>
+        layui.use(['form', 'jquery','button', 'popup'], function () {
+            var form = layui.form;
+            var button = layui.button;
+            var popup = layui.popup;
+            var $ = layui.jquery;
+
+            //验证输入是否合法
+            form.verify({
+                account: function (value, item) {
+                    if (value.length < 5) return '请输入至少5位账户';
+                },
+                password: function (value) {
+                    if (value.length < 5) return '请输入至少5位密码';
+                },
+                captcha: function (value) {
+                    if (value.length < 4) return '请输入验证码';
+                }
+            });
+
+            //刷新验证码
+            $("#Vcodeimg").click(function () {
+
+                $('#Vcodeimg').attr('src', 'Vcode?' + new Date().getTime());
+
+            });
+            // 登 录 提 交
+            form.on('submit(login)', function (data) {
+                $.get('VertifyVcode?vcode=' + data.field.captcha, function (res) {
+                    if (res) {
+                        $.ajax({
+                            url: "/User/login",
+                            type: "POST",
+                            contentType: 'application/json',
+                            async: true,
+                            data: JSON.stringify(data.field),
+                            success: function (json,status,req) {
+                                if (json.success) {
+                                    popup.success("登录成功，正在载入系统用户界面！！！", function () {
+                                        let refreshToken = req.getResponseHeader('x-access-token');
+                                        let expiretime = parseInt(req.getResponseHeader('token-expiretime'));
+                                        var curTime = new Date();
+                                        let loginMsgToStorage = {
+                                            'expired-date': new Date(curTime.setMinutes(curTime.getMinutes() + expiretime)),
+                                            'expired-time': expiretime,
+                                            'access-token': json.data,
+                                            'x-access-token':refreshToken
+
+                                        };
+                                        localStorage.setItem("LicenseInfo", JSON.stringify(loginMsgToStorage));
+                                        
+                                        location.href = "@Url.Action("Index","Home")";
+                                        
+                                    })
+                                }
+                                else {
+                                    popup.failure(json.message, function () {
+                                        $("#password").val("");
+                                    });
+                                }
+                            },
+                            error: function (XMLHttpRequest) {
+                                popup.failure("错误网络状态码：" + XMLHttpRequest.status + ",请稍后重试或者联系信息管理员！！！");
+                            }
+
+                        });
+
+                    }
+                    else {
+                        popup.failure("验证码已过期3分钟或者验证码输入错误！！！");
+                    }
+                });
+
+            });
+        })
+    </script>
+

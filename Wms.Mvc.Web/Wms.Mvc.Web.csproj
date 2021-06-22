@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+	 <SatelliteResourceLanguages>zh-CN</SatelliteResourceLanguages>
+	 <UserSecretsId>c4d25cfe-4e75-4ae1-8b64-b8dca0a8b9c7</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Wms.Web.Core\Wms.Web.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\system\Views\User\" />
+    <Folder Include="Areas\system\Views\File\" />
+    <Folder Include="Areas\system\Views\Dict\" />
+    <Folder Include="Areas\system\Views\Role\" />
+    <Folder Include="Areas\system\Views\Pos\" />
+    <Folder Include="Areas\system\Views\Org\" />
+  </ItemGroup>
+
+</Project>

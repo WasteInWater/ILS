@@ -1,0 +1,207 @@
+﻿<div class="layui-row layui-col-space10">
+    <div class="layui-col-md8">
+        <div class="layui-row layui-col-space10">
+            <div class="layui-col-md6">
+                <div class="layui-card">
+                    <div class="layui-card-body">
+                        <div id="stockPossessionPie" style="min-height:300px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md6">
+                <div class="layui-card">
+                    <div class="layui-card-body" >
+                        <div id="stockAmountPie" style="min-height:300px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md12">
+                <div class="layui-row">
+                    <div class="layui-col-md12">
+                        <div class="layui-card layui-form layui-card-body layui-row">
+                            <div class="layui-col-md2 layui-col-sm-offset9">
+                                <select name="city" lay-verify="">
+                                    <option value="">请选择周期</option>
+                                    <option value="010">按周统计</option>
+                                    <option value="021">按月统计</option>
+                                    <option value="0571">按年统计</option>
+                                </select>
+                            </div>
+                        </div>
+                        </div>
+                    <div class="layui-col-md12">
+                      <div class="layui-card">
+                        <div id="throughputLine" style="min-height:425px;"></div>
+                          <p>&nbsp;</p>
+                      </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-md4">
+        <div class="layui-card" style="min-height:830px;">
+            <div class="layui-card-header" style="font-weight:bold">库存物品汇总统计</div>
+            <div class="layui-card-body">
+                <table id="sumProductNum" lay-filter="sumProductNum"></table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['layer', 'echarts', 'carousel', 'element', 'table', 'permission'], function () {
+        var $ = layui.jquery,
+            layer = layui.layer,
+            element = layui.element,
+            echarts = layui.echarts,
+            table = layui.table;
+         
+        //库存产品汇总表
+        let cols = [
+            [{
+                filed:'排序',
+                type:'numbers'
+
+            },
+            {
+                title: '产品名称',
+                field: 'name',
+                align: 'center',
+               
+            },
+            {
+                title: '产品规格',
+                field: 'model',
+                align: 'center'
+            },
+            {
+                title: '库存总量',
+                field: 'amount',
+                align: 'center'
+            },
+            {
+                title: '计量单位',
+                field: 'unit',
+                align: 'center',
+            }
+            ]
+        ]
+        table.render({
+            elem: '#sumProductNum',
+            url: '../../admin/data/role.json',
+            page: false,
+            cols: cols,
+            skin: 'line',
+            even: true,
+        });
+        //饼图
+        var stockPossessionPie = document.getElementById('stockPossessionPie');
+        var char1 = echarts.init(stockPossessionPie);
+
+        var stockAmountPie = document.getElementById('stockAmountPie');
+        var char2 = echarts.init(stockAmountPie);
+
+        var throughputLine = document.getElementById('throughputLine');
+        var char3 = echarts.init(throughputLine);
+
+        var option1= {
+            title: {
+                text: '产品库存分析',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            series: [
+                {
+                    name: '库存总量',
+                    type: 'pie',
+                    radius: '60%',
+                    data: [
+                        { value: 1048, name: '已过期' },
+                        { value: 735, name: '3个月内' },
+                        { value: 580, name: '半年内' },
+                        { value: 484, name: '1年内' },
+                        { value: 300, name: '2年内' }
+                    ],
+                    label: {
+                        show: true,
+                        formatter: '{b} : {c} ({d}%)'
+                    }
+                    
+                }
+            ]
+        };
+        var option2 = {
+            title: {
+                text: '库存储位占有率',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            series: [
+                {
+                    name: '库存总量',
+                    type: 'pie',
+                    radius: '60%',
+                    data: [
+                        { value: 20, name: '锁定库位' },
+                        { value: 1500, name: '已用库位' },
+                        { value: 580, name: '未用库位' },
+                    ],
+                    label: {
+                        show: true,
+                        formatter: '{b} : {d}%'
+                    }
+                }
+            ]
+        };
+        var option3 = {
+            title: {
+                text: '库存出入库吞吐量',
+                left: 'center',
+                y: 'bottom',
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+               
+                data: ['出库总量', '入库总量']
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '出库总量',
+                    type: 'line',
+                    stack: '总量',
+                    data: [120, 132, 101, 134, 90, 230, 210]
+                },
+                {
+                    name: '入库总量',
+                    type: 'line',
+                    stack: '总量',
+                    data: [220, 182, 191, 234, 290, 330, 310]
+                } 
+            ],
+            label: {
+                show: true,
+            }
+        };
+
+        char1.setOption(option1);
+        char2.setOption(option2);
+        char3.setOption(option3);
+        
+    });
+</script>
+  
